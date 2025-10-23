@@ -14,20 +14,18 @@
 # See the License for the specific language governing permissions and      #
 # limitations under the License.                                           #
 ############################################################################
-"""In addition to implementing a variety of LSP methods, this larger example
-demonstrates a number of pygls' capabilities including
+"""この大規模なサンプルでは、​​様々なLSPメソッドの実装に加え、pyglsの様々な機能
+（以下を含む）も紹介します。
 
-- Defining custom commands
-- Progress updates
-- Fetching configuration values from the client
-- Async methods
-- Dynamic method (un)registration
-- Starting a TCP/WebSocket server.
+- カスタムコマンドの定義
+- 進捗状況の更新
+- クライアントからの設定値の取得
+- 非同期メソッド
+- 動的メソッドの登録/解除
+- TCP/WebSocketサーバーの起動
 
-This is left over from a time where *pygls* tried to have a single example server to
-demonstrate all of its features.
-Eventually this example will be broken up in smaller, more focused examples and how to
-guides.
+これは、*pygls* が単一のサンプルサーバーですべての機能を説明しようとしていた時代の名残です。
+最終的には、このサンプルはより小規模で焦点を絞ったサンプルとハウツーガイドに分割される予定です。
 """
 
 import asyncio
@@ -63,7 +61,7 @@ json_server = JsonLanguageServer("pygls-json-example", "v0.1")
     lsp.CompletionOptions(trigger_characters=[","], all_commit_characters=[":"]),
 )
 def completions(params: Optional[lsp.CompletionParams] = None) -> lsp.CompletionList:
-    """Returns completion items."""
+    """完了アイテムを返します。"""
     return lsp.CompletionList(
         is_incomplete=False,
         items=[
@@ -78,7 +76,7 @@ def completions(params: Optional[lsp.CompletionParams] = None) -> lsp.Completion
 
 @json_server.command(JsonLanguageServer.CMD_PROGRESS)
 async def progress(ls: JsonLanguageServer, *args):
-    """Create and start the progress on the client."""
+    """クライアント上で進行を作成して開始します。"""
     token = str(uuid.uuid4())
     # Create
     await ls.work_done_progress.create_async(token)
@@ -104,7 +102,7 @@ async def progress(ls: JsonLanguageServer, *args):
 
 @json_server.command(JsonLanguageServer.CMD_REGISTER_COMPLETIONS)
 async def register_completions(ls: JsonLanguageServer, *args):
-    """Register completions method on the client."""
+    """クライアントに補完メソッドを登録します。"""
     params = lsp.RegistrationParams(
         registrations=[
             lsp.Registration(
@@ -134,7 +132,7 @@ async def register_completions(ls: JsonLanguageServer, *args):
 
 @json_server.command(JsonLanguageServer.CMD_UNREGISTER_COMPLETIONS)
 async def unregister_completions(ls: JsonLanguageServer, *args):
-    """Unregister completions method on the client."""
+    """クライアントの補完メソッドを登録解除します。"""
     params = lsp.UnregistrationParams(
         unregisterations=[
             lsp.Unregistration(
@@ -162,7 +160,7 @@ async def unregister_completions(ls: JsonLanguageServer, *args):
 
 
 def handle_config(ls: JsonLanguageServer, config):
-    """Handle the configuration sent by the client."""
+    """クライアントから送信された構成を処理します。"""
     try:
         example_config = config[0].get("exampleConfiguration")
 
@@ -184,7 +182,7 @@ def handle_config(ls: JsonLanguageServer, config):
 
 @json_server.command(JsonLanguageServer.CMD_SHOW_CONFIGURATION_ASYNC)
 async def show_configuration_async(ls: JsonLanguageServer, *args):
-    """Gets exampleConfiguration from the client settings using coroutines."""
+    """コルーチンを使用してクライアント設定から exampleConfiguration を取得します。"""
     config = await ls.workspace_configuration_async(
         lsp.ConfigurationParams(
             items=[
@@ -200,7 +198,7 @@ async def show_configuration_async(ls: JsonLanguageServer, *args):
 
 @json_server.command(JsonLanguageServer.CMD_SHOW_CONFIGURATION_CALLBACK)
 def show_configuration_callback(ls: JsonLanguageServer, *args):
-    """Gets exampleConfiguration from the client settings using callback."""
+    """コールバックを使用してクライアント設定から exampleConfiguration を取得します。"""
 
     ls.workspace_configuration(
         lsp.ConfigurationParams(
@@ -218,7 +216,7 @@ def show_configuration_callback(ls: JsonLanguageServer, *args):
 @json_server.thread()
 @json_server.command(JsonLanguageServer.CMD_SHOW_CONFIGURATION_THREAD)
 def show_configuration_thread(ls: JsonLanguageServer, *args):
-    """Gets exampleConfiguration from the client settings using thread pool."""
+    """スレッド プールを使用してクライアント設定から exampleConfiguration を取得します。"""
     config = ls.workspace_configuration(
         lsp.ConfigurationParams(
             items=[

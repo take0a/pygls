@@ -14,19 +14,18 @@
 # See the License for the specific language governing permissions and      #
 # limitations under the License.                                           #
 ############################################################################
-"""This implements the :lsp:`textDocument/codeLens` and :lsp:`codeLens/resolve` requests.
+"""これは :lsp:`textDocument/codeLens` および :lsp:`codeLens/resolve` リクエストを実装します。
 
-`In VSCode <https://code.visualstudio.com/blogs/2017/02/12/code-lens-roundup>`__
-a code lens is shown as "ghost text" above some line of actual code in your document.
-These lenses are typically used to show some contextual information (e.g. number of
-references) or provide easy access to some command (e.g. run this test).
+`VSCode <https://code.visualstudio.com/blogs/2017/02/12/code-lens-roundup>`__ では、
+コードレンズはドキュメント内の実際のコード行の上に「ゴーストテキスト」として表示されます。
+これらのレンズは通常、コンテキスト情報（参照数など）を表示したり、コマンド（このテストを
+実行など）への簡単なアクセスを提供したりするために使用されます。
 
-This server scans the document for incomplete sums e.g. ``1 + 1 =`` and returns a code
-lens object which, when clicked, will call the ``codeLens.evaluateSum`` command to fill
-in the answer.
-Note that while we could have easily compute the ``command`` field of the code lens up
-front, this example demonstrates how the ``codeLens/resolve`` can be used to defer this
-computation until it is actually necessary.
+このサーバーはドキュメントをスキャンして不完全な合計（例: ``1 + 1 =``）を探し、
+コードレンズオブジェクトを返します。このオブジェクトをクリックすると、``codeLens.evaluateSum`` 
+コマンドが呼び出され、答えが入力されます。
+コード レンズの ``command`` フィールドを事前に簡単に計算することもできますが、この例では 
+``codeLens/resolve`` を使用して、この計算を実際に必要になるまで延期する方法を示しています。
 """
 
 import logging
@@ -44,10 +43,10 @@ server = LanguageServer("code-lens-server", "v1")
 
 @server.feature(types.TEXT_DOCUMENT_CODE_LENS)
 def code_lens(params: types.CodeLensParams):
-    """Return a list of code lens to insert into the given document.
+    """指定されたドキュメントに挿入するコードレンズのリストを返します。
 
-    This method will read the whole document and identify each sum in the document and
-    tell the language client to insert a code lens at each location.
+    このメソッドはドキュメント全体を読み取り、ドキュメント内の各要素を識別し、
+    各位置にコードレンズを挿入するように言語クライアントに指示します。
     """
     items = []
     document_uri = params.text_document.uri
@@ -80,33 +79,33 @@ def code_lens(params: types.CodeLensParams):
 
 @attrs.define
 class EvaluateSumArgs:
-    """Represents the arguments to pass to the ``codeLens.evaluateSum`` command"""
+    """``codeLens.evaluateSum`` コマンドに渡す引数を表します"""
 
     uri: str
-    """The uri of the document to edit"""
+    """編集するドキュメントのURI"""
 
     left: int
-    """The left argument to ``+``"""
+    """``+`` の左引数"""
 
     right: int
-    """The right argument to ``+``"""
+    """``+`` の右引数"""
 
     line: int
-    """The line number to edit"""
+    """編集する行番号"""
 
 
 @server.feature(types.CODE_LENS_RESOLVE)
 def code_lens_resolve(ls: LanguageServer, item: types.CodeLens):
-    """Resolve the ``command`` field of the given code lens.
+    """指定されたコードレンズの ``command`` フィールドを解決します。
 
-    Using the ``data`` that was attached to the code lens item created in the function
-    above, this prepares an invocation of the ``evaluateSum`` command below.
+    上記の関数で作成されたコードレンズアイテムにアタッチされた ``data`` を
+    使用して、以下の ``evaluateSum`` コマンドの呼び出しを準備します。
     """
     logging.info("Resolving code lens: %s", item)
 
-    left = item.data["left"]
-    right = item.data["right"]
-    uri = item.data["uri"]
+    left = item.data["left"] if item.data else 0
+    right = item.data["right"] if item.data else 0
+    uri = item.data["uri"] if item.data else ""
 
     args = EvaluateSumArgs(
         uri=uri,
@@ -130,7 +129,7 @@ def evaluate_sum(ls: LanguageServer, args: EvaluateSumArgs):
     document = ls.workspace.get_text_document(args.uri)
     line = document.lines[args.line]
 
-    # Compute the edit that will update the document with the result.
+    # 結果に基づいてドキュメントを更新する編集を計算します。
     answer = args.left + args.right
     edit = types.TextDocumentEdit(
         text_document=types.OptionalVersionedTextDocumentIdentifier(
@@ -148,7 +147,7 @@ def evaluate_sum(ls: LanguageServer, args: EvaluateSumArgs):
         ],
     )
 
-    # Apply the edit.
+    # 編集を適用します。
     ls.workspace_apply_edit(
         types.ApplyWorkspaceEditParams(
             edit=types.WorkspaceEdit(document_changes=[edit]),

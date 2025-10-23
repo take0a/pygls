@@ -14,23 +14,20 @@
 # See the License for the specific language governing permissions and      #
 # limitations under the License.                                           #
 ############################################################################
-"""This implements the various Goto "X" requests from the specification.
+"""これは、仕様書に記載されている様々な Goto "X" リクエストを実装します。
 
 - :lsp:`textDocument/definition`
 - :lsp:`textDocument/declaration`
 - :lsp:`textDocument/implementation`
 - :lsp:`textDocument/typeDefinition`
 
-Along with the :lsp:`textDocument/references` request.
+:lsp:`textDocument/references` リクエストも同様です。
 
-As you will see all of these methods are essentially the same, they accept a document
-uri and they return zero or more locations (even goto definition can return multiple
-results!).
-The only difference between them are whatever the semantic differences are between say a
-definition and a declaration in your target language.
+ご覧のとおり、これらのメソッドはすべて本質的に同じです。ドキュメント URI を受け取り、
+0 個以上の場所を返します（goto definition でも複数の結果が返されることがあります）。
+これらのメソッドの唯一の違いは、ターゲット言語における定義と宣言の意味の違いです。
 
-This means the choices of what the example server below will return results for are
-completely arbitrary.
+つまり、以下のサンプルサーバーが返す結果の選択は完全に任意です。
 """
 
 import logging
@@ -48,8 +45,8 @@ TYPE = re.compile(r"^type ([A-Z]\w+)\(")
 
 
 class GotoLanguageServer(LanguageServer):
-    """Language server demonstrating the various "Goto X" methods in the LSP
-    specification."""
+    """LSP 仕様のさまざまな「Goto X」メソッドをデモンストレーションする言語サーバー。
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -90,21 +87,21 @@ server = GotoLanguageServer("goto-server", "v1")
 
 @server.feature(types.TEXT_DOCUMENT_DID_OPEN)
 def did_open(ls: GotoLanguageServer, params: types.DidOpenTextDocumentParams):
-    """Parse each document when it is opened"""
+    """各ドキュメントを開いたときに解析する"""
     doc = ls.workspace.get_text_document(params.text_document.uri)
     ls.parse(doc)
 
 
 @server.feature(types.TEXT_DOCUMENT_DID_CHANGE)
 def did_change(ls: GotoLanguageServer, params: types.DidOpenTextDocumentParams):
-    """Parse each document when it is changed"""
+    """変更されたドキュメントを解析する"""
     doc = ls.workspace.get_text_document(params.text_document.uri)
     ls.parse(doc)
 
 
 @server.feature(types.TEXT_DOCUMENT_TYPE_DEFINITION)
 def goto_type_definition(ls: GotoLanguageServer, params: types.TypeDefinitionParams):
-    """Jump to an object's type definition."""
+    """オブジェクトの型定義にジャンプします。"""
     doc = ls.workspace.get_text_document(params.text_document.uri)
     index = ls.index.get(doc.uri)
     if index is None:
@@ -125,7 +122,7 @@ def goto_type_definition(ls: GotoLanguageServer, params: types.TypeDefinitionPar
 
 @server.feature(types.TEXT_DOCUMENT_DEFINITION)
 def goto_definition(ls: GotoLanguageServer, params: types.DefinitionParams):
-    """Jump to an object's definition."""
+    """オブジェクトの定義にジャンプします。"""
     doc = ls.workspace.get_text_document(params.text_document.uri)
     index = ls.index.get(doc.uri)
     if index is None:
@@ -140,7 +137,7 @@ def goto_definition(ls: GotoLanguageServer, params: types.DefinitionParams):
 
 @server.feature(types.TEXT_DOCUMENT_DECLARATION)
 def goto_declaration(ls: GotoLanguageServer, params: types.DeclarationParams):
-    """Jump to an object's declaration."""
+    """オブジェクトの宣言にジャンプします。"""
     doc = ls.workspace.get_text_document(params.text_document.uri)
     index = ls.index.get(doc.uri)
     if index is None:
@@ -153,7 +150,7 @@ def goto_declaration(ls: GotoLanguageServer, params: types.DeclarationParams):
 
     word = doc.word_at_position(params.position)
 
-    for match in ARGUMENT.finditer(line):
+    for match in ARGUMENT.finditer(line): # parse した結果から見つけるんじゃないのか？
         if match.group("name") == word:
             linum = params.position.line
             return types.Location(
@@ -167,7 +164,7 @@ def goto_declaration(ls: GotoLanguageServer, params: types.DeclarationParams):
 
 @server.feature(types.TEXT_DOCUMENT_IMPLEMENTATION)
 def goto_implementation(ls: GotoLanguageServer, params: types.ImplementationParams):
-    """Jump to an object's implementation."""
+    """オブジェクトの実装にジャンプします。"""
     doc = ls.workspace.get_text_document(params.text_document.uri)
     index = ls.index.get(doc.uri)
     if index is None:
@@ -182,7 +179,7 @@ def goto_implementation(ls: GotoLanguageServer, params: types.ImplementationPara
 
 @server.feature(types.TEXT_DOCUMENT_REFERENCES)
 def find_references(ls: GotoLanguageServer, params: types.ReferenceParams):
-    """Find references of an object."""
+    """オブジェクトの参照を見つけます。"""
     doc = ls.workspace.get_text_document(params.text_document.uri)
     index = ls.index.get(doc.uri)
     if index is None:

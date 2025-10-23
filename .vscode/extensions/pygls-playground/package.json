@@ -2,10 +2,10 @@
   "name": "pygls-playground",
   "description": "Extension for experimenting with pygls powered language servers",
   "author": "Open Law Library",
-  "repository": "https://github.com/openlawlibrary/pygls",
+  "repository": "https://github.com/take0a/pygls",
   "license": "Apache-2.0",
   "version": "2.0.0",
-  "publisher": "openlawlibrary",
+  "publisher": "take0a",
   "engines": {
     "node": ">=20",
     "vscode": "^1.78.0"
@@ -131,7 +131,7 @@
   },
   "main": "./out/extension.js",
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "pnpm run compile",
     "compile": "tsc -p .",
     "watch": "tsc -p . -w"
   },

@@ -14,20 +14,20 @@
 # See the License for the specific language governing permissions and      #
 # limitations under the License.                                           #
 ############################################################################
-"""This implements the various semantic token requests from the specification
+"""これは、仕様にある様々なセマンティックトークンリクエストを実装します。
 
-Tokens are sent to the client as a long list of numbers, each group of 5 numbers describe
-a single token.
+トークンは長い数値リストとしてクライアントに送信され、5つの数値の各グループが
+1つのトークンを表します。
 
-- The first 3 numbers describe the token's line number, character index and length,
-  **relative to the start of the previous token**
-- Thr 4th number describes a token's type
-- The 5th number specifies zero or more modifiers to apply to a token
+- 最初の3つの数値は、トークンの行番号、文字インデックス、および長さを表します
+  （**前のトークンの開始位置からの相対位置**）。
+- 4番目の数値はトークンの種類を表します。
+- 5番目の数値は、トークンに適用する0個以上の修飾子を指定します。
 
 .. seealso::
 
    :ref:`howto-semantic-tokens`
-      For a detailed guide on how tokens are represented
+      トークンの表現方法の詳細なガイドについて
 """
 
 import enum
@@ -123,15 +123,14 @@ def is_colon(token: Optional[Token]) -> bool:
 
 
 class SemanticTokensServer(LanguageServer):
-    """Language server demonstrating the semantic token methods from the LSP
-    specification."""
+    """LSP 仕様のセマンティック トークン メソッドを示す言語サーバー。"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.tokens: Dict[str, List[Token]] = {}
 
     def parse(self, doc: TextDocument):
-        """Convert the given document into a list of tokens"""
+        """与えられた文書をトークンのリストに変換する"""
         tokens = self.lex(doc)
         self.classify_tokens(tokens)
 
@@ -139,17 +138,17 @@ class SemanticTokensServer(LanguageServer):
         self.tokens[doc.uri] = tokens
 
     def classify_tokens(self, tokens: List[Token]):
-        """Given a list of tokens, determine their type and modifiers."""
+        """トークンのリストが与えられたら、そのタイプと修飾子を決定します。"""
 
         def prev(idx):
-            """Get the previous token, if possible"""
+            """可能であれば、前のトークンを取得する"""
             if idx < 0:
                 return None
 
             return tokens[idx - 1]
 
         def next(idx):
-            """Get the next token, if possible"""
+            """可能であれば次のトークンを取得する"""
             if idx >= len(tokens) - 1:
                 return None
 
@@ -198,7 +197,7 @@ class SemanticTokensServer(LanguageServer):
                 token.tok_type = "variable"
 
     def lex(self, doc: TextDocument) -> List[Token]:
-        """Convert the given document into a list of tokens"""
+        """与えられた文書をトークンのリストに変換する"""
         tokens = []
 
         prev_line = 0
@@ -260,14 +259,14 @@ server = SemanticTokensServer("semantic-tokens-server", "v1")
 
 @server.feature(types.TEXT_DOCUMENT_DID_OPEN)
 def did_open(ls: SemanticTokensServer, params: types.DidOpenTextDocumentParams):
-    """Parse each document when it is opened"""
+    """各ドキュメントを開いたときに解析する"""
     doc = ls.workspace.get_text_document(params.text_document.uri)
     ls.parse(doc)
 
 
 @server.feature(types.TEXT_DOCUMENT_DID_CHANGE)
 def did_change(ls: SemanticTokensServer, params: types.DidOpenTextDocumentParams):
-    """Parse each document when it is changed"""
+    """変更されたドキュメントを解析する"""
     doc = ls.workspace.get_text_document(params.text_document.uri)
     ls.parse(doc)
 
@@ -276,11 +275,11 @@ def did_change(ls: SemanticTokensServer, params: types.DidOpenTextDocumentParams
     types.TEXT_DOCUMENT_SEMANTIC_TOKENS_FULL,
     types.SemanticTokensLegend(
         token_types=TokenTypes,
-        token_modifiers=[m.name for m in TokenModifier],
+        token_modifiers=[m.name for m in TokenModifier if m.name is not None],
     ),
 )
 def semantic_tokens_full(ls: SemanticTokensServer, params: types.SemanticTokensParams):
-    """Return the semantic tokens for the entire document"""
+    """文書全体のセマンティックトークンを返す"""
     data = []
     tokens = ls.tokens.get(params.text_document.uri, [])
 

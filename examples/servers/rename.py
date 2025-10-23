@@ -14,20 +14,20 @@
 # See the License for the specific language governing permissions and      #
 # limitations under the License.                                           #
 ############################################################################
-"""This implements :lsp:`textDocument/rename` and :lsp:`textDocument/prepareRename`
+"""これは :lsp:`textDocument/rename` と :lsp:`textDocument/prepareRename` を
+実装します。
 
-The ``textDocument/rename`` method should return a collection of edits the client should
-perform in order to correctly rename all occurances of the given symbol.
+`textDocument/rename` メソッドは、指定されたシンボルのすべての出現を正しく
+名前変更するためにクライアントが実行すべき編集のコレクションを返す必要があります。
 
-The ``textDocument/prepareRename`` method is used by the client to check that it
-actually makes sense to rename the given symbol, giving the server chance to reject the
-operation as invalid.
+`textDocument/prepareRename` メソッドは、クライアントが指定されたシンボルの
+名前変更が実際に意味のあるものであるかどうかを確認するために使用され、サーバーは
+操作を無効として拒否する機会を得ます。
 
-.. note::
+.. 注::
 
-   This server's rename implementation is no different to a naive find and replace,
-   a real server would have to check to make sure it only renames symbols in the
-   relevant scope.
+    このサーバーの名前変更の実装は、単純な検索と置換と変わりません。実際のサーバーでは、
+    関連するスコープ内のシンボルのみの名前変更を行うことを確認する必要があります。
 """
 
 import logging
@@ -46,7 +46,7 @@ TYPE = re.compile(r"^type ([A-Z]\w+)\(")
 
 
 class RenameLanguageServer(LanguageServer):
-    """Language server demonstrating symbol renaming."""
+    """シンボルの名前変更を示す言語サーバー。"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -87,21 +87,21 @@ server = RenameLanguageServer("rename-server", "v1")
 
 @server.feature(types.TEXT_DOCUMENT_DID_OPEN)
 def did_open(ls: RenameLanguageServer, params: types.DidOpenTextDocumentParams):
-    """Parse each document when it is opened"""
+    """各ドキュメントを開いたときに解析する"""
     doc = ls.workspace.get_text_document(params.text_document.uri)
     ls.parse(doc)
 
 
 @server.feature(types.TEXT_DOCUMENT_DID_CHANGE)
 def did_change(ls: RenameLanguageServer, params: types.DidOpenTextDocumentParams):
-    """Parse each document when it is changed"""
+    """変更されたドキュメントを解析する"""
     doc = ls.workspace.get_text_document(params.text_document.uri)
     ls.parse(doc)
 
 
 @server.feature(types.TEXT_DOCUMENT_RENAME)
 def rename(ls: RenameLanguageServer, params: types.RenameParams):
-    """Rename the symbol at the given position."""
+    """指定された位置のシンボルの名前を変更します。"""
     logging.debug("%s", params)
 
     doc = ls.workspace.get_text_document(params.text_document.uri)
@@ -132,8 +132,8 @@ def rename(ls: RenameLanguageServer, params: types.RenameParams):
 
 @server.feature(types.TEXT_DOCUMENT_PREPARE_RENAME)
 def prepare_rename(ls: RenameLanguageServer, params: types.PrepareRenameParams):
-    """Called by the client to determine if renaming the symbol at the given location
-    is a valid operation."""
+    """指定された場所のシンボルの名前を変更することが有効な操作であるかどうかを
+    判断するためにクライアントによって呼び出されます。"""
     logging.debug("%s", params)
 
     doc = ls.workspace.get_text_document(params.text_document.uri)
@@ -146,11 +146,11 @@ def prepare_rename(ls: RenameLanguageServer, params: types.PrepareRenameParams):
     if not is_object:
         return None
 
-    # At this point, we can rename this symbol.
+    # この時点で、このシンボルの名前を変更できます。
     #
-    # For simplicity we can tell the client to use its default behaviour however, it's
-    # relatively new to the spec (LSP v3.16+) so a production server should check the
-    # client's capabilities before responding in this way
+    # 簡潔にするために、クライアントにデフォルトの動作を使用するように指示することも
+    # できますが、これは仕様としては比較的新しいもの（LSP v3.16+）であるため、
+    # 本番サーバーではこの方法で応答する前にクライアントの機能を確認する必要があります。
     return types.PrepareRenameDefaultBehavior(default_behavior=True)
 
 

@@ -14,8 +14,7 @@
 # See the License for the specific language governing permissions and      #
 # limitations under the License.                                           #
 ############################################################################
-"""This demonstrates the different ways in which server commands can be registered.
-"""
+"""これは、サーバー コマンドを登録するさまざまな方法を示しています。"""
 from __future__ import annotations
 
 import asyncio
@@ -33,14 +32,14 @@ server = LanguageServer("commands-server", "v1")
 
 @server.command("random")
 def random():
-    """Accepts no arguments, returns a random number"""
+    """引数は受け取らず、乱数を返す"""
     return 4  # https://xkcd.com/221/
 
 
 @server.command("random.wrapped")
 def random_wrapped(ls):
-    """Accepts no arguments (but uses an injected server instance).
-    Returns a random number"""
+    """引数は受け付けません（ただし、注入されたサーバーインスタンスを使用します）。
+    乱数を返します。"""
     ls.window_log_message(
         types.LogMessageParams(type=types.MessageType.Info, message="running...")
     )
@@ -49,14 +48,14 @@ def random_wrapped(ls):
 
 @server.command("calculate.sum")
 def calculate_sum(*args):
-    """Using *args to accept any number of arguments"""
+    """*argsを使用して任意の数の引数を受け入れる"""
     logging.info("arguments: %r", args)
     return sum(args)
 
 
 @server.command("calculate.sum.wrapped")
 def calculate_sum_wrapped(s: LanguageServer, *args):
-    """Using *args to accept any number of arguments"""
+    """*argsを使用して任意の数の引数を受け入れる"""
     s.window_log_message(
         types.LogMessageParams(type=types.MessageType.Info, message=f"{args=}")
     )
@@ -65,14 +64,14 @@ def calculate_sum_wrapped(s: LanguageServer, *args):
 
 @server.command("calculate.pow")
 def calculate_pow(x: float, n):
-    """One typed, one un-typed argument"""
+    """型付き引数1つと型なし引数1つ"""
     logging.info("x: %r, n: %r", x, n)
     return x**n
 
 
 @server.command("calculate.pow.wrapped")
 def calculate_pow_wrapped(s: LanguageServer, x, n: int):
-    """One typed, one un-typed argument"""
+    """型付き引数1つと型なし引数1つ"""
     s.window_log_message(
         types.LogMessageParams(type=types.MessageType.Info, message=f"{x=}, {n=}")
     )
@@ -81,7 +80,7 @@ def calculate_pow_wrapped(s: LanguageServer, x, n: int):
 
 @server.command("calculate.pow.async")
 async def calculate_pow_async(x: float, n):
-    """One typed, one un-typed argument, async"""
+    """型付き引数1つ、型なし引数1つ、非同期"""
     await asyncio.sleep(1)
 
     logging.info("x: %r, n: %r", x, n)
@@ -90,7 +89,7 @@ async def calculate_pow_async(x: float, n):
 
 @server.command("calculate.pow.async.wrapped")
 async def calculate_pow_async_wrapped(s: LanguageServer, x, n: int):
-    """One typed, one un-typed argument, async"""
+    """型付き引数1つ、型なし引数1つ、非同期"""
     s.window_log_message(
         types.LogMessageParams(type=types.MessageType.Info, message=f"{x=}, {n=}")
     )
@@ -99,14 +98,14 @@ async def calculate_pow_async_wrapped(s: LanguageServer, x, n: int):
 
 @server.command("calculate.div")
 def calculate_div(x: float, n):
-    """"""
+    """型付き引数1つと型なし引数1つ"""
     logging.info("x: %r, n: %r", x, n)
     return x / n
 
 
 @server.command("calculate.div.wrapped")
 def calculate_div_wrapped(s: LanguageServer, x, n: float):
-    """Using *args to accept any number of arguments"""
+    """型付き引数1つと型なし引数1つ"""
     s.window_log_message(
         types.LogMessageParams(type=types.MessageType.Info, message=f"{x=}, {n=}")
     )
@@ -118,19 +117,18 @@ class Triangle:
     """A triangle."""
 
     a: float
-    """Length of side a"""
+    """辺aの長さ"""
 
     b: float
-    """Length of side b"""
+    """辺bの長さ"""
 
     c: float = attrs.field(default=0)
-    """Length of side c - the hypotenuse"""
+    """辺cの長さ - 斜辺"""
 
 
 @server.command("calculate.triangle.hypotenuse")
 def calculate_triangle_hypotenuse(triangle: Triangle):
-    """When type annotations are given, pygls will automatically convert compatible
-    values to their attrs-based representation"""
+    """型注釈が与えられると、pyglsは互換性のある値を自動的に属性ベースの表現に変換します。"""
     logging.info("triangle: %r", triangle)
 
     triangle.c = math.sqrt(triangle.a**2 + triangle.b**2)
@@ -139,8 +137,7 @@ def calculate_triangle_hypotenuse(triangle: Triangle):
 
 @server.command("calculate.triangle.hypotenuse.wrapped")
 def calculate_triangle_hypotenuse_wrapped(ls: LanguageServer, triangle: Triangle):
-    """When type annotations are given, pygls will automatically convert compatible
-    values to their attrs-based representation"""
+    """型注釈が与えられると、pyglsは互換性のある値を自動的に属性ベースの表現に変換します。"""
     ls.window_log_message(
         types.LogMessageParams(type=types.MessageType.Info, message=f"{triangle=}")
     )
@@ -149,7 +146,7 @@ def calculate_triangle_hypotenuse_wrapped(ls: LanguageServer, triangle: Triangle
 
 @server.command("calculate.untyped.hypotenuse")
 def calculate_untyped_hypotenuse(tri):
-    """Calculate the hypotenuse of a right-angled triangle"""
+    """直角三角形の斜辺を計算します"""
     logging.info("tri: %r", tri)
 
     a = tri["a"]
@@ -160,7 +157,7 @@ def calculate_untyped_hypotenuse(tri):
 
 @server.command("calculate.untyped.hypotenuse.wrapped")
 def calculate_untyped_hypotenuse_wrapped(ls: LanguageServer, tri):
-    """Calculate the hypotenuse of a right-angled triangle"""
+    """直角三角形の斜辺を計算します"""
     ls.window_log_message(
         types.LogMessageParams(type=types.MessageType.Info, message=f"{tri=}")
     )

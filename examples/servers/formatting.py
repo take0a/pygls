@@ -14,24 +14,23 @@
 # See the License for the specific language governing permissions and      #
 # limitations under the License.                                           #
 ############################################################################
-"""This implements the various formatting requests from the specification
+"""これは、仕様書に記載されている様々な書式設定リクエストを実装します。
 
-- :lsp:`textDocument/formatting`: format the entire document.
-- :lsp:`textDocument/rangeFormatting`: format just the given range within a document.
-- :lsp:`textDocument/onTypeFormatting`: format the document while the user is actively
-  typing.
+- :lsp:`textDocument/formatting`: ドキュメント全体を書式設定します。
+- :lsp:`textDocument/rangeFormatting`: ドキュメント内の指定範囲のみを書式設定します。
+- :lsp:`textDocument/onTypeFormatting`: ユーザーが入力中にドキュメントを書式設定します。
 
-These are typically invoked by the client when the user asks their editor to format the
-document or as part of automatic triggers (e.g. format on save).
-Depending on the client, the user may need to do some additional configuration to enable
-some of these methods e.g. setting ``editor.formatOnType`` in VSCode to enable
-``textDocument/onTypeFormatting``.
+これらのメソッドは通常、ユーザーがエディターにドキュメントの書式設定を要求したとき、
+または自動トリガー（例：保存時の書式設定）の一部としてクライアントによって呼び出されます。
 
-This server implements basic formatting of Markdown style tables.
+クライアントによっては、これらのメソッドの一部を有効にするためにユーザーが追加の設定を
+行う必要がある場合があります。例えば、VSCode で ``editor.formatOnType`` を設定して 
+``textDocument/onTypeFormatting`` を有効にするなどです。
 
-The implementation is a little buggy in that the resulting table might not be what you
-expect (fixes welcome!), but it should be enough to demonstrate the expected interaction
-between client and server.
+このサーバーは、Markdown スタイルの表の基本的な書式設定を実装しています。
+
+この実装には多少のバグがあり、結果の表が期待どおりにならない場合があります（修正を歓迎します！）が、
+クライアントとサーバー間の期待されるやり取りを示すには十分でしょう。
 """
 
 import logging
@@ -49,7 +48,7 @@ from pygls.workspace import TextDocument
 
 @attrs.define
 class Row:
-    """Represents a row in the table"""
+    """表内の行を表します"""
 
     cells: List[str]
     cell_widths: List[int]
@@ -61,7 +60,7 @@ server = LanguageServer("formatting-server", "v1")
 
 @server.feature(types.TEXT_DOCUMENT_FORMATTING)
 def format_document(ls: LanguageServer, params: types.DocumentFormattingParams):
-    """Format the entire document"""
+    """文書全体の書式を設定する"""
     logging.debug("%s", params)
 
     doc = ls.workspace.get_text_document(params.text_document.uri)
@@ -71,7 +70,7 @@ def format_document(ls: LanguageServer, params: types.DocumentFormattingParams):
 
 @server.feature(types.TEXT_DOCUMENT_RANGE_FORMATTING)
 def format_range(ls: LanguageServer, params: types.DocumentRangeFormattingParams):
-    """Format the given range within a document"""
+    """ドキュメント内の指定された範囲をフォーマットする"""
     logging.debug("%s", params)
 
     doc = ls.workspace.get_text_document(params.text_document.uri)
@@ -84,7 +83,7 @@ def format_range(ls: LanguageServer, params: types.DocumentRangeFormattingParams
     types.DocumentOnTypeFormattingOptions(first_trigger_character="|"),
 )
 def format_on_type(ls: LanguageServer, params: types.DocumentOnTypeFormattingParams):
-    """Format the document while the user is typing"""
+    """ユーザーが入力している間に文書をフォーマットする"""
     logging.debug("%s", params)
 
     doc = ls.workspace.get_text_document(params.text_document.uri)
@@ -95,34 +94,33 @@ def format_on_type(ls: LanguageServer, params: types.DocumentOnTypeFormattingPar
 def format_table(
     rows: List[Row], range_: Optional[types.Range] = None
 ) -> List[types.TextEdit]:
-    """Format the given table, returning the list of edits to make to the document.
+    """指定された表をフォーマットし、ドキュメントに加える編集のリストを返します。
 
-    If range is given, this method will only modify the document within the specified
-    range.
+    範囲が指定された場合、このメソッドは指定された範囲内のドキュメントのみを変更します。
     """
     edits: List[types.TextEdit] = []
 
-    # Determine max widths
+    # 最大幅を決定する
     columns: Dict[int, int] = {}
     for row in rows:
         for idx, cell in enumerate(row.cells):
             columns[idx] = max(len(cell), columns.get(idx, 0))
 
-    # Format the table.
+    # 表をフォーマットします。
     cell_padding = 2
     for row in rows:
-        # Only process the lines within the specified range.
+        # 指定された範囲内の行のみを処理します。
         if skip_line(row.line_number, range_):
             continue
 
         if len(row.cells) == 0:
-            # If there are no cells on the row, then this must be a separator row
+            # 行にセルがない場合、これは区切り行である必要があります。
             cells: List[str] = []
             empty_cells = [
                 "-" * (columns[i] + cell_padding) for i in range(len(columns))
             ]
         else:
-            # Otherwise ensure that each row has a consistent number of cells
+            # それ以外の場合は、各行のセルの数が一定であることを確認してください。
             empty_cells = [" " for _ in range(len(columns) - len(row.cells))]
             cells = [
                 c.center(columns[i] + cell_padding) for i, c in enumerate(row.cells)
@@ -145,9 +143,9 @@ def format_table(
 def parse_document(
     document: TextDocument, range_: Optional[types.Range] = None
 ) -> List[Row]:
-    """Parse the given document into a list of table rows.
+    """指定されたドキュメントをテーブル行のリストに解析します。
 
-    If range_ is given, only consider lines within the range part of the table.
+    range_ が指定されている場合は、テーブルの範囲内の行のみを考慮します。
     """
     rows: List[Row] = []
     for linum, line in enumerate(document.lines):
@@ -170,7 +168,7 @@ def parse_document(
         logging.debug("%s: %s", chars, cells)
 
         if chars == {"-"}:
-            # Check for a separator row, use an empty list to represent it.
+            # 区切り行をチェックし、空のリストを使用してそれを表します。
             cells = []
 
         elif len(cells) == 0:
@@ -185,7 +183,7 @@ def parse_document(
 
 
 def skip_line(line: int, range_: Optional[types.Range]) -> bool:
-    """Given a range, determine if we should skip the given line number."""
+    """範囲を指定すると、指定された行番号をスキップするかどうかを決定します。"""
 
     if range_ is None:
         return False

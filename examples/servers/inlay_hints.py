@@ -14,19 +14,17 @@
 # See the License for the specific language governing permissions and      #
 # limitations under the License.                                           #
 ############################################################################
-"""This implements the :lsp:`textDocument/inlayHint` and :lsp:`inlayHint/resolve`
-requests.
+"""これは :lsp:`textDocument/inlayHint` および :lsp:`inlayHint/resolve` 
+リクエストを実装します。
 
-In editors
-`like VSCode <https://code.visualstudio.com/Docs/editor/editingevolved#_inlay-hints>`__
-inlay hints are often rendered as inline "ghost text".
-They are typically used to show the types of variables and return values from functions.
+VSCode <https://code.visualstudio.com/Docs/editor/editingevolved#_inlay-hints>`__ 
+などのエディターでは、インレイヒントは多くの場合、インラインの「ゴーストテキスト」として
+レンダリングされます。これらは通常、変数の型や関数の戻り値を示すために使用されます。
 
-This server implements ``textDocument/inlayHint`` to scan the given document for integer
-values and returns the equivalent representation of that number in binary.
-While we could easily compute the inlay hint's tooltip in the same method, this example
-uses the ``inlayHint/resolve`` to demonstrate how you can defer expensive computations
-to when they are required.
+このサーバーは ``textDocument/inlayHint`` を実装し、指定されたドキュメント内の整数値を
+スキャンし、その数値に相当するバイナリ表現を返します。
+インレイヒントのツールチップも同じ方法で簡単に計算できますが、この例では ``inlayHint/resolve`` 
+を使用して、高負荷な計算を必要なときに延期する方法を示しています。
 """
 
 import re
@@ -83,7 +81,7 @@ def inlay_hints(params: types.InlayHintParams):
 @server.feature(types.INLAY_HINT_RESOLVE)
 def inlay_hint_resolve(hint: types.InlayHint):
     try:
-        n = int(hint.label[1:], 2)
+        n = int(str(hint.label)[1:], 2)
         hint.tooltip = f"Binary representation of the number: {n}"
     except Exception:
         pass

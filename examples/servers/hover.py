@@ -14,14 +14,13 @@
 # See the License for the specific language governing permissions and      #
 # limitations under the License.                                           #
 ############################################################################
-"""This implements the :lsp:`textDocument/hover` request.
+"""これは :lsp:`textDocument/hover` リクエストを実装します。
 
-Typically this method will be called when the user places their mouse or cursor over a
-symbol in a document, allowing you to provide documentation for the selected symbol.
+通常、このメソッドはユーザーがドキュメント内のシンボル上にマウスまたはカーソルを
+置いたときに呼び出され、選択されたシンボルに関するドキュメントを提供できます。
 
-This server implements `textDocument/hover` for various datetime representations,
-displaying a table how the selected date would be formatted in each of the supported
-formats.
+このサーバーは、様々な日時表現に対応する `textDocument/hover` を実装し、選択された
+日付がサポートされている各形式でどのようにフォーマットされるかを示す表を表示します。
 """
 
 import logging

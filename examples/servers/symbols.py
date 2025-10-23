@@ -14,21 +14,24 @@
 # See the License for the specific language governing permissions and      #
 # limitations under the License.                                           #
 ############################################################################
-"""This implements the :lsp:`textDocument/documentSymbol` and :lsp:`workspace/symbol`
-requests from the LSP specification.
+"""これは、LSP 仕様の :lsp:`textDocument/documentSymbol` リクエストと 
+:lsp:`workspace/symbol` リクエストを実装します。
 
-In VSCode, the ``textDocument/documentSymbol`` request features like the
-`Outline View <https://code.visualstudio.com/docs/getstarted/tips-and-tricks#_outline-view>`__
-or `Goto Symbol in File <https://code.visualstudio.com/docs/getstarted/tips-and-tricks#_go-to-symbol-in-file>`__.
-While `Goto Symbol in Workspace <https://code.visualstudio.com/docs/getstarted/tips-and-tricks#_go-to-symbol-in-workspace>`__
-is powered by the ``workspace/symbol`` request.
+VSCode では、`textDocument/documentSymbol`` リクエストは、`アウトラインビュー 
+<https://code.visualstudio.com/docs/getstarted/tips-and-tricks#_outline-view>`__ や
+`ファイル内のシンボルへ移動 
+<https://code.visualstudio.com/docs/getstarted/tips-and-tricks#_go-to-symbol-in-file>`__ 
+のような機能を提供します。
+一方、`ワークスペース内のシンボルへ移動 
+<https://code.visualstudio.com/docs/getstarted/tips-and-tricks#_go-to-symbol-in-workspace>`__ は、
+`workspace/symbol`` リクエストによって実現されます。
 
-The results the server should return for the two requests is similar, but not identical.
-The key difference is that ``textDocument/documentSymbol`` can provide a symbol hierarchy
-whereas ``workspace/symbol`` is a flat list.
+サーバーが 2 つのリクエストに対して返す結果は似ていますが、同一ではありません。
+主な違いは、「textDocument/documentSymbol」はシンボル階層を提供できるのに対し、
+「workspace/symbol」はフラットなリストである点です。
 
-This server implements these requests for the pretend programming language featured in
-the ``code.txt`` in the example workspace in the *pygls* repository.
+このサーバーは、*pygls* リポジトリのサンプルワークスペースにある「code.txt」で
+紹介されている擬似プログラミング言語に対するこれらのリクエストを実装しています。
 
 .. literalinclude:: ../../../../examples/servers/workspace/code.txt
    :language: none
@@ -49,8 +52,7 @@ TYPE = re.compile(r"^type ([A-Z]\w+)\(([^)]*?)\)")
 
 
 class SymbolsLanguageServer(LanguageServer):
-    """Language server demonstrating the document and workspace symbol methods in the LSP
-    specification."""
+    """LSP 仕様のドキュメントおよびワークスペース シンボル メソッドを示す言語サーバー。"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -74,7 +76,7 @@ class SymbolsLanguageServer(LanguageServer):
         logging.info("Index: %s", self.index)
 
     def parse_function(self, funcs, linum, line, match):
-        """Parse a function definition on the given line."""
+        """指定された行の関数定義を解析します。"""
         name = match.group(1)
         args = match.group(2)
 
@@ -90,7 +92,7 @@ class SymbolsLanguageServer(LanguageServer):
         )
 
     def parse_typedef(self, typedefs, linum, line, match):
-        """Parse a type definition on the given line."""
+        """指定された行の型定義を解析します。"""
         name = match.group(1)
         fields = match.group(2)
 
@@ -106,7 +108,7 @@ class SymbolsLanguageServer(LanguageServer):
         )
 
     def parse_args(self, text: str, linum: int, offset: int):
-        """Parse arguments for a type or function definition"""
+        """型または関数定義の引数を解析する"""
         arguments = {}
 
         for match in ARGUMENT.finditer(text):
@@ -126,21 +128,21 @@ server = SymbolsLanguageServer("symbols-server", "v1")
 
 @server.feature(types.TEXT_DOCUMENT_DID_OPEN)
 def did_open(ls: SymbolsLanguageServer, params: types.DidOpenTextDocumentParams):
-    """Parse each document when it is opened"""
+    """各ドキュメントを開いたときに解析する"""
     doc = ls.workspace.get_text_document(params.text_document.uri)
     ls.parse(doc)
 
 
 @server.feature(types.TEXT_DOCUMENT_DID_CHANGE)
 def did_change(ls: SymbolsLanguageServer, params: types.DidOpenTextDocumentParams):
-    """Parse each document when it is changed"""
+    """変更されたドキュメントを解析する"""
     doc = ls.workspace.get_text_document(params.text_document.uri)
     ls.parse(doc)
 
 
 @server.feature(types.TEXT_DOCUMENT_DOCUMENT_SYMBOL)
 def document_symbol(ls: SymbolsLanguageServer, params: types.DocumentSymbolParams):
-    """Return all the symbols defined in the given document."""
+    """指定されたドキュメントで定義されているすべてのシンボルを返します。"""
     if (index := ls.index.get(params.text_document.uri)) is None:
         return None
 
@@ -165,7 +167,8 @@ def document_symbol(ls: SymbolsLanguageServer, params: types.DocumentSymbolParam
                 range=range_,
                 selection_range=range_,
             )
-            type_symbol.children.append(field_symbol)
+            if isinstance(type_symbol.children, list):
+                type_symbol.children.append(field_symbol)
 
         results.append(type_symbol)
 
@@ -189,7 +192,8 @@ def document_symbol(ls: SymbolsLanguageServer, params: types.DocumentSymbolParam
                 range=range_,
                 selection_range=range_,
             )
-            func_symbol.children.append(arg_symbol)
+            if isinstance(func_symbol.children, list):
+                func_symbol.children.append(arg_symbol)
 
         results.append(func_symbol)
 
@@ -198,7 +202,7 @@ def document_symbol(ls: SymbolsLanguageServer, params: types.DocumentSymbolParam
 
 @server.feature(types.WORKSPACE_SYMBOL)
 def workspace_symbol(ls: SymbolsLanguageServer, params: types.WorkspaceSymbolParams):
-    """Return all the symbols defined in the given document."""
+    """ワークスペース内のドキュメントで定義されているすべてのシンボルを返します。"""
     query = params.query
     results = []
 

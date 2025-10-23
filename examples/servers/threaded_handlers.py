@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and      #
 # limitations under the License.                                           #
 ############################################################################
-"""This example server demonstrates pygls' ability to run message handlers in a separate
-thread.
+"""このサンプル サーバーは、別のスレッドでメッセージ ハンドラーを実行する pygls の
+機能を示しています。
 
 """
 from __future__ import annotations
@@ -36,7 +36,7 @@ server = LanguageServer("threaded-server", "v1")
     types.CompletionOptions(trigger_characters=["."]),
 )
 def completions(params: types.CompletionParams | None = None) -> types.CompletionList:
-    """Returns completion items."""
+    """完了アイテムを返します。"""
     return types.CompletionList(
         is_incomplete=False,
         items=[
@@ -51,9 +51,8 @@ def completions(params: types.CompletionParams | None = None) -> types.Completio
 
 @server.command("count.down.blocking")
 def count_down_blocking(ls: LanguageServer, *args):
-    """Starts counting down and showing message synchronously.
-    It will block the main thread, which can be tested by trying to show
-    completion items.
+    """カウントダウンを開始し、同期的にメッセージを表示します。
+    メインスレッドをブロックしますが、完了項目を表示してみることでテストできます。
     """
     thread = threading.current_thread()
     for i in range(10):
@@ -69,9 +68,9 @@ def count_down_blocking(ls: LanguageServer, *args):
 @server.thread()
 @server.command("count.down.thread")
 def count_down_thread(ls: LanguageServer, *args):
-    """Starts counting down and showing messages in a separate thread.
-    It will NOT block the main thread, which can be tested by trying to show
-    completion items.
+    """カウントダウンを開始し、別のスレッドにメッセージを表示します。
+    メインスレッドはブロックされません。完了項目を表示してみることで、
+    メインスレッドをブロックしないかどうかを確認できます。
     """
     thread = threading.current_thread()
 
@@ -88,7 +87,7 @@ def count_down_thread(ls: LanguageServer, *args):
 @server.thread()
 @server.command("count.down.error")
 def count_down_error(ls: LanguageServer, *args):
-    """A threaded handler that throws an error."""
+    """エラーをスローするスレッド ハンドラー。"""
     1 / 0
 
 

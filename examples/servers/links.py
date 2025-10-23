@@ -14,18 +14,18 @@
 # See the License for the specific language governing permissions and      #
 # limitations under the License.                                           #
 ############################################################################
-"""This implements the :lsp:`textDocument/documentLink` and :lsp:`documentLink/resolve`
-requests.
+"""これは :lsp:`textDocument/documentLink` および :lsp:`documentLink/resolve` 
+リクエストを実装します。
 
-These allow you to add support for custom link syntax to your language.
-In editors like VSCode, links will often be underlined and can be opened with a
-:kbd:`Ctrl+Click`.
+これらにより、言語にカスタムリンク構文のサポートを追加できます。
+VSCode などのエディターでは、リンクは下線付きで表示されることが多く、:kbd:`Ctrl+Click` 
+で開くことができます。
 
-This server scans the document given to ``textDocument/documentLink`` for the
-syntax ``<LINK_TYPE:PATH>`` and returns a document link desribing its location.
-While we could easily compute the ``target`` and ``tooltip`` fields in the same
-method, this example demonstrates how the ``documentLink/resolve`` method can be used
-to defer this until it is actually necessary
+このサーバーは、``textDocument/documentLink`` に渡されたドキュメントをスキャンして 
+``<LINK_TYPE:PATH>`` 構文を検索し、その場所を示すドキュメントリンクを返します。
+``target`` フィールドと ``tooltip`` フィールドを同じメソッドで簡単に計算できますが、
+この例では ``documentLink/resolve`` メソッドを使用して、実際に必要なときまで計算を
+延期する方法を示しています。
 """
 
 import logging
@@ -44,7 +44,7 @@ server = LanguageServer("links-server", "v1")
     types.TEXT_DOCUMENT_DOCUMENT_LINK,
 )
 def document_links(params: types.DocumentLinkParams):
-    """Return a list of links contained in the document."""
+    """ドキュメントに含まれるリンクのリストを返します。"""
     items = []
     document_uri = params.text_document.uri
     document = server.workspace.get_text_document(document_uri)
@@ -73,9 +73,13 @@ LINK_TYPES = {
 
 @server.feature(types.DOCUMENT_LINK_RESOLVE)
 def document_link_resolve(link: types.DocumentLink):
-    """Given a link, fill in additional information about it"""
+    """リンクが与えられた場合、それに関する追加情報を入力します"""
     logging.info("resolving link: %s", link)
 
+    if link.data is None:
+        logging.error("link.data is None")
+        return link
+    
     link_type = link.data.get("type", "<unknown>")
     link_target = link.data.get("target", "<unknown>")
 

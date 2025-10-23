@@ -14,15 +14,14 @@
 # See the License for the specific language governing permissions and      #
 # limitations under the License.                                           #
 ############################################################################
-"""This example server implements the :lsp:`textDocument/codeAction` request.
+"""このサンプルサーバーは、:lsp:`textDocument/codeAction` リクエストを実装します。
 
-`In VSCode <https://code.visualstudio.com/docs/editor/refactoring>`__ code actions are
-typically accessed via a small lightbulb placed near the code the action will affect.
-Code actions usually modify the code in some way, usually to fix an error or refactor
-it.
+`VSCode <https://code.visualstudio.com/docs/editor/refactoring>`__ では、
+コードアクションは通常、アクションの対象となるコードの近くに配置された小さな電球アイコンからアクセスします。
+コードアクションは通常、エラーを修正したりリファクタリングしたりするために、何らかの方法でコードを変更します。
 
-This server scans the document for incomplete sums e.g. ``1 + 1 =`` and returns a code
-action which, when invoked will fill in the answer.
+このサーバーは、ドキュメントをスキャンして不完全な合計（例: ``1 + 1 =``）を検出し、
+呼び出されると答えを入力するコードアクションを返します。
 """
 
 import re

@@ -27,8 +27,7 @@ server = LanguageServer("async-shutdown-server", "v1")
 
 @server.feature(types.SHUTDOWN)
 async def shutdown(params: None) -> None:
-    """An async shutdown handler that is long and complicated and takes a while to
-    complete"""
+    """長くて複雑で、完了するまでに時間がかかる非同期シャットダウン ハンドラー"""
 
     logging.info("Shutdown started")
     server.window_log_message(

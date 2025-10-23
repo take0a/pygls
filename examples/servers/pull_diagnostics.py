@@ -14,17 +14,18 @@
 # See the License for the specific language governing permissions and      #
 # limitations under the License.                                           #
 ############################################################################
-"""This implements the push-model of diagnostics.
+"""これは診断のプッシュモデルを実装します。
 
-This is a fairly new addition to LSP (v3.17), so not all clients will support this.
+これはLSP (v3.17) に比較的最近追加された機能であるため、すべてのクライアントが
+これをサポートするわけではありません。
 
-Instead of the server broadcasting updates whenever it feels like, the client explicitly
-requests diagnostics for a particular document (:lsp:`textDocument/diagnostic`) or for
-the entire workspace (:lsp:`workspace/diagnostic`).
-This approach helps guide the server to perform work that's most relevant to the client.
+サーバーが随時更新をブロードキャストするのではなく、クライアントは特定のドキュメント
+ (:lsp:`textDocument/diagnostic`) またはワークスペース全体 (:lsp:`workspace/diagnostic`) 
+ の診断を明示的に要求します。このアプローチにより、サーバーはクライアントにとって
+ 最も関連性の高い作業を実行できるようになります。
 
-This server scans a document for sums e.g. ``1 + 2 = 3``, highlighting any that are
-either missing answers (warnings) or incorrect (errors).
+このサーバーはドキュメントをスキャンして合計 (例: ``1 + 2 = 3`) を探し、
+答えが不足している (警告) か間違っている (エラー) ものがあればハイライト表示します。
 """
 
 import logging
@@ -40,7 +41,7 @@ ADDITION = re.compile(r"^\s*(\d+)\s*\+\s*(\d+)\s*=\s*(\d+)?$")
 
 
 class PullDiagnosticServer(LanguageServer):
-    """Language server demonstrating "pull-model" diagnostics."""
+    """「プル モデル」診断を示す言語サーバー。"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -92,14 +93,14 @@ server = PullDiagnosticServer("diagnostic-server", "v1")
 
 @server.feature(types.TEXT_DOCUMENT_DID_OPEN)
 def did_open(ls: PullDiagnosticServer, params: types.DidOpenTextDocumentParams):
-    """Parse each document when it is opened"""
+    """各ドキュメントを開いたときに解析する"""
     doc = ls.workspace.get_text_document(params.text_document.uri)
     ls.parse(doc)
 
 
 @server.feature(types.TEXT_DOCUMENT_DID_CHANGE)
 def did_change(ls: PullDiagnosticServer, params: types.DidOpenTextDocumentParams):
-    """Parse each document when it is changed"""
+    """変更されたドキュメントを解析する"""
     doc = ls.workspace.get_text_document(params.text_document.uri)
     ls.parse(doc)
 
@@ -115,7 +116,7 @@ def did_change(ls: PullDiagnosticServer, params: types.DidOpenTextDocumentParams
 def document_diagnostic(
     ls: PullDiagnosticServer, params: types.DocumentDiagnosticParams
 ):
-    """Return diagnostics for the requested document"""
+    """要求されたドキュメントの診断結果を返す"""
     # logging.info("%s", params)
 
     if (uri := params.text_document.uri) not in ls.diagnostics:
@@ -134,7 +135,7 @@ def document_diagnostic(
 def workspace_diagnostic(
     ls: PullDiagnosticServer, params: types.WorkspaceDiagnosticParams
 ):
-    """Return diagnostics for the workspace."""
+    """ワークスペースの診断を返します。"""
     # logging.info("%s", params)
     items = []
     previous_ids = {result.value for result in params.previous_result_ids}

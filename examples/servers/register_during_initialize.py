@@ -26,8 +26,8 @@ server = LanguageServer("register-during-init-server", "v1")
 
 @server.feature(types.INITIALIZE)
 def initialize(params: types.InitializeParams):
-    """An initialize handler that only registers a ``textDocument/formatting`` handler
-    if the user requests it in their initialzation options."""
+    """ユーザーが初期化オプションで要求した場合にのみ 
+    ``textDocument/formatting`` ハンドラーを登録する初期化ハンドラー。"""
 
     init_options = params.initialization_options or {}
     if init_options.get("formatting", False):

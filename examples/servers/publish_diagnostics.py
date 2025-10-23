@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and      #
 # limitations under the License.                                           #
 ############################################################################
-"""This implements the publish model of diagnostics.
+"""これは、診断情報の公開モデルを実装します。
 
-The original and most widely supported model of diagnostics in LSP, the publish model
-allows the server to update the client whenever it is ready.
-Unlike the push-model however, there is no way for the client to help the server
-prioritize which documents it should be computing the diagnostics for.
+LSPにおける診断情報の元祖であり、最も広くサポートされているモデルである公開モデルでは、
+サーバーは準備ができたらいつでもクライアントに更新情報を送信できます。
+ただし、プッシュモデルとは異なり、クライアントがサーバーにどのドキュメントの診断情報を
+計算するかの優先順位付けを支援する方法はありません。
 
-This server scans a document for sums e.g. ``1 + 2 = 3``, highlighting any that are
-either missing answers (warnings) or incorrect (errors).
+このサーバーは、ドキュメントをスキャンして合計（例：「1 + 2 = 3」）を探し、
+不足している答え（警告）または間違っている答え（エラー）を強調表示します。
 """
 
 import logging
@@ -38,7 +38,7 @@ ADDITION = re.compile(r"^\s*(\d+)\s*\+\s*(\d+)\s*=\s*(\d+)?$")
 
 
 class PublishDiagnosticServer(LanguageServer):
-    """Language server demonstrating "push-model" diagnostics."""
+    """「プッシュ モデル」診断を示す言語サーバー。"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -86,7 +86,7 @@ server = PublishDiagnosticServer("diagnostic-server", "v1")
 
 @server.feature(types.TEXT_DOCUMENT_DID_OPEN)
 def did_open(ls: PublishDiagnosticServer, params: types.DidOpenTextDocumentParams):
-    """Parse each document when it is opened"""
+    """各ドキュメントを開いたときに解析する"""
     doc = ls.workspace.get_text_document(params.text_document.uri)
     ls.parse(doc)
 
@@ -102,7 +102,7 @@ def did_open(ls: PublishDiagnosticServer, params: types.DidOpenTextDocumentParam
 
 @server.feature(types.TEXT_DOCUMENT_DID_CHANGE)
 def did_change(ls: PublishDiagnosticServer, params: types.DidOpenTextDocumentParams):
-    """Parse each document when it is changed"""
+    """変更されたドキュメントを解析する"""
     doc = ls.workspace.get_text_document(params.text_document.uri)
     ls.parse(doc)
 

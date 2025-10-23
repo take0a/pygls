@@ -1,114 +1,131 @@
 # Pygls Playground
 
-![Screenshot of the pygls-playground extension in action](https://user-images.githubusercontent.com/2675694/260591942-b7001a7b-3081-439d-b702-5f8a489856db.png)
+![pygls-playground 拡張機能の動作スクリーンショット](https://user-images.githubusercontent.com/2675694/260591942-b7001a7b-3081-439d-b702-5f8a489856db.png)
 
-This VSCode extension aims to serve two purposes.
+この VSCode 拡張機能は、2つの目的を達成するために開発されました。
 
-- Provide an environment in which you can easily experiment with the pygls framework by trying some of our example servers - or by writing your own
+- サンプルサーバーを試したり、独自のサーバーを作成したりすることで、pygls フレームワークを簡単に試せる環境を提供すること。
 
-- Provide a minimal example of what it takes to integrate a pygls powered language server into VSCode.
+- pygls ベースの言語サーバーを VSCode に統合するために必要な最小限のサンプルを提供すること。
 
-For an example of a more complete VSCode client, including details on how to bundle your Python code with the VSCode extension itself you may also be interested in Microsoft's [template extension for Python tools](https://github.com/microsoft/vscode-python-tools-extension-template).
+より完全な VSCode クライアントの例については、Python コードを VSCode 拡張機能自体にバンドルする方法の詳細も含まれており、Microsoft の [Python ツールのテンプレート拡張機能](https://github.com/microsoft/vscode-python-tools-extension-template) も参考になるかもしれません。
 
-## Setup
+## セットアップ
 
-### Install Server Dependencies
+### サーバーの依存関係をインストール
 
-Open a terminal in the repository's root directory
+リポジトリのルートディレクトリでターミナルを開きます
 
-1. Create a virtual environment
+1. uv 環境を復元します。
+   ```
+   cd pygls
+   uv sync
+   ```
+<!-- 
+1. 仮想環境を作成します
    ```
    python -m venv env
    ```
 
-1. Activate the environment
+1. 環境をアクティベートする
    ```
    source ./env/bin/activate
    ```
 
-1. Install `pygls`
+1. `pygls`をインストールする
    ```
    python -m pip install -e .
    ```
+ -->
 
-### Install Client Dependencies
+### クライアントの依存関係をインストールします
 
-Open terminal in the same directory as this file and execute following commands:
+pnpm 用に変更したので、
+このファイルと同じディレクトリでターミナルを開き、以下のコマンドを実行します。
 
-1. Install node dependencies
-
+1. ノードの依存関係をインストールします
+   ```
+   pnpm install
+   ```
+<!-- 
    ```
    npm install --no-save
    ```
-1. Compile the extension
-
+ -->
+1. 拡張機能をコンパイルする
+   ```
+   pnpm run compile
+   ```
+<!-- 
    ```
    npm run compile
    ```
-   Alternatively you can run `npm run watch` if you are going to be actively working on the extension itself.
+ -->
 
-### Run Extension (VSCode v1.89+)
+   あるいは、拡張機能自体を積極的に操作する場合は、`npm run watch` を実行することもできます。
 
-> [!IMPORTANT]
-> In order for VSCode to recognise `pygls-playground` as a valid extension, you need to complete the setup steps above **before** opening this repo inside VSCode.
-> If you opened VSCode before compiling the extension, you will have to run the `Developer: Reload Window` command through the command palette (`Ctrl+Shift+P`)
+### 拡張機能の実行 (VSCode v1.89+)
 
-1. Open the `pygls` repository in VSCode
+> [!重要]
+> VSCode が `pygls-playground` を有効な拡張機能として認識するには、VSCode 内でこのリポジトリを開く **前** に上記の設定手順を完了する必要があります。
+> 拡張機能をコンパイルする前に VSCode を開いた場合は、コマンドパレット (Ctrl+Shift+P) から `Developer: Reload Window` コマンドを実行する必要があります。
 
-1. Goto the `Extensions` tab (`Ctrl+Shift+X`), find the `pygls-playground` extension in the *Recommended* section (not by searching in the marketplace!) and click the `Install Workspace Extension` button.
-   **If the button only says "Install", you've not found the right version of this extension**
+1. VSCode で `pygls` リポジトリを開きます。
 
-1. You will need to make sure that VSCode is using a virtual environment that contains an installation of `pygls`.
-   The `Python: Select Interpreter` command can be used to pick the correct one.
+1. 「拡張機能」タブ (Ctrl+Shift+X) に移動し、「*推奨*」セクションで `pygls-playground` 拡張機能を見つけます (マーケットプレイスで検索しないでください)。「ワークスペース拡張機能のインストール」ボタンをクリックします。
+   **ボタンに「インストール」としか表示されていない場合は、この拡張機能の適切なバージョンが見つかりません**
 
-   Alternatively, you can set the `pygls.server.pythonPath` option in the `.vscode/settings.json` file
+1. VSCode が `pygls` がインストールされた仮想環境を使用していることを確認してください。
+   `Python: Select Interpreter` コマンドを使用して、適切なインタープリターを選択できます。
 
-### Run Extension (VSCode v1.88 and older)
+または、`.vscode/settings.json` ファイルで `pygls.server.pythonPath` オプションを設定することもできます。
 
-1. Open this directory in VS Code
+### 拡張機能の実行 (VSCode v1.88 以前)
 
-1. The playground relies on the [Python extension for VSCode](https://marketplace.visualstudio.com/items?itemName=ms-python.python) for choosing the appropriate Python environment in which to run the example language servers.
-   If you haven't already, you will need to install it and reload the window.
+1. VS Code でこのディレクトリを開きます。
 
-1. Open the Run and Debug view (`ctrl + shift + D`)
+1. プレイグラウンドは、サンプル言語サーバーを実行するための適切な Python 環境を選択するために、[VSCode 用 Python 拡張機能](https://marketplace.visualstudio.com/items?itemName=ms-python.python) を使用します。
+   まだインストールしていない場合は、インストールしてウィンドウをリロードしてください。
 
-1. Select `Launch Client` and press `F5`, this will open a second VSCode window with the `pygls-playground` extension enabled.
+1. 実行とデバッグビューを開きます (`Ctrl + Shift + D`)。
 
-1. You will need to make sure that VSCode is using a virtual environment that contains an installation of `pygls`.
-   The `Python: Select Interpreter` command can be used to pick the correct one.
+1. 「クライアントを起動」を選択し、`F5` キーを押すと、`pygls-playground` 拡張機能が有効になった 2 つ目の VSCode ウィンドウが開きます。
 
-   Alternatively, you can set the `pygls.server.pythonPath` option in the `.vscode/settings.json` file
+1. VSCode が `pygls` がインストールされた仮想環境を使用していることを確認してください。
+   `Python: Select Interpreter` コマンドを使用して、適切なインタープリターを選択できます。
 
-## Configuration
+あるいは、`.vscode/settings.json` ファイルで `pygls.server.pythonPath` オプションを設定することもできます。
 
-By default, the `pygls-playground` extension is configured to run the example `code_actions.py` server which you can find in the `examples/servers` folder of this repository.
-(For best results, try opening the `examples/servers/workspace/sums.txt` file).
+## 設定
 
-However, the `.vscode/settings.json` file in this repository can be used alter this and more.
+デフォルトでは、`pygls-playground` 拡張機能は、このリポジトリの `examples/servers` フォルダにあるサンプルの `code_actions.py` サーバーを実行するように設定されています。
+(最適な結果を得るには、`examples/servers/workspace/sums.txt` ファイルを開いてみてください。)
 
-### Selecting a server
+ただし、このリポジトリの `.vscode/settings.json` ファイルを使用して、これやその他の設定を変更できます。
 
-> [!TIP]
-> See the [README](../../../examples/servers/README.md) in the `examples/servers` folder for details on the available servers and which files they work best with.
-
-To select a different example server, change the `pygls.server.launchScript` setting to the name of the server you wish to run
-
-### Selecting the working directory
+### サーバーの選択
 
 > [!TIP]
-> Cryptic `Error: spawn /.../python ENOENT` messages are often due to the extension using an incorrect working directory.
+> 利用可能なサーバーと、それらに最適なファイルの詳細については、`examples/servers` フォルダ内の [README](../../../examples/servers/README.md) をご覧ください。
 
-If everything works as expected, the `pygls-playground` extension **should** default to using the `examples/servers/` folder as its working directory.
+別のサンプルサーバーを選択するには、`pygls.server.launchScript` 設定を、実行するサーバーの名前に変更してください。
 
-If this is not the case, or you want to change it to something else, you can change the `pygls.server.cwd` option
+### 作業ディレクトリの選択
 
-### Selecting documents
+> [!TIP]
+> 不可解な「Error: spawn /.../python ENOENT」メッセージは、拡張機能が間違った作業ディレクトリを使用していることが原因であることが多いです。
 
-Language servers typically specialise in a relatively small number of file types, so a client will only ask a server about documents
+すべてが期待通りに動作する場合、`pygls-playground` 拡張機能はデフォルトで `examples/servers/` フォルダを作業ディレクトリとして使用するはずです。
 
-The `code_actions.py` example is intended to be used with `plaintext` files (e.g. the provided `sums.txt` file). To use a server with different file types you can modify the `pygls.client.documentSelector` option
+そうでない場合、または別のディレクトリに変更したい場合は、`pygls.server.cwd` オプションを変更できます。
 
-For example to use a server with `json` files:
+### ドキュメントの選択
+
+言語サーバーは通常、比較的少数のファイル形式に特化しているため、クライアントはサーバーにドキュメントについてのみ問い合わせます。
+
+`code_actions.py` の例は、`plaintext` ファイル（例：提供されている `sums.txt` ファイル）で使用することを目的としています。異なるファイル形式に対応するサーバーを使用するには、`pygls.client.documentSelector` オプションを変更します。
+
+例えば、`json` ファイルに対応するサーバーを使用する場合は、以下のコマンドを実行します。
 
 ```
 "pygls.client.documentSelector": [
@@ -119,13 +136,13 @@ For example to use a server with `json` files:
 ],
 ```
 
-You can find the full list of known language identifiers [here](https://code.visualstudio.com/docs/languages/identifiers#_known-language-identifiers).
+既知の言語識別子の完全なリストは、[こちら](https://code.visualstudio.com/docs/languages/identifiers#_known-language-identifiers) でご覧いただけます。
 
-See the [LSP Specification](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#documentFilter) for details on all the available options that can be passed to the `pygls.client.documentSelector` option.
+`pygls.client.documentSelector` オプションに渡すことができるすべてのオプションの詳細については、[LSP 仕様](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#documentFilter) をご覧ください。
 
-### Debugging the server
+### サーバーのデバッグ
 
-To debug the language server set the `pygls.server.debug` option to `true`.
-The server should be restarted and the debugger connect automatically.
+言語サーバーをデバッグするには、`pygls.server.debug` オプションを `true` に設定します。
+サーバーが再起動し、デバッガーが自動的に接続されます。
 
-You can control the host and port that the debugger uses through the `pygls.server.debugHost` and `pygls.server.debugPort` options.
+デバッガーが使用するホストとポートは、`pygls.server.debugHost` オプションと `pygls.server.debugPort` オプションで制御できます。
