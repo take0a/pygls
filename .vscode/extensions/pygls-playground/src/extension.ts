@@ -28,8 +28,9 @@ import { LanguageClient, LanguageClientOptions, ServerOptions, State, integer } 
 
 const MIN_PYTHON = semver.parse("3.9.0")
 
-// Some other nice to haves.
-// TODO: Check selected env satisfies pygls' requirements - if not offer to run the select env command.
+// 他にあれば便利なもの。
+// TODO: 選択した env が pygls の要件を満たしているかどうかを確認します。
+//       満たしていない場合は、select env コマンドの実行を提案します。
 // TODO: TCP Transport
 // TODO: WS Transport
 // TODO: Web Extension support (requires WASM-WASI!)
@@ -40,8 +41,8 @@ let python: PythonExtension;
 let logger: vscode.LogOutputChannel
 
 /**
- * This is the main entry point.
- * Called when vscode first activates the extension
+ * これはメインのエントリポイントです。
+ * vscodeが拡張機能を最初にアクティブ化するときに呼び出されます。
  */
 export async function activate(context: vscode.ExtensionContext) {
     logger = vscode.window.createOutputChannel('pygls', { log: true })
@@ -52,7 +53,7 @@ export async function activate(context: vscode.ExtensionContext) {
         return
     }
 
-    // Restart language server command
+    // 言語サーバーを再起動するコマンド
     context.subscriptions.push(
         vscode.commands.registerCommand("pygls.server.restart", async () => {
             logger.info('restarting server...')
@@ -60,14 +61,14 @@ export async function activate(context: vscode.ExtensionContext) {
         })
     )
 
-    // Execute command... command
+    // コマンドを実行...コマンド
     context.subscriptions.push(
         vscode.commands.registerCommand("pygls.server.executeCommand", async () => {
             await executeServerCommand()
         })
     )
 
-    // Restart the language server if the user switches Python envs...
+    // ユーザーが Python 環境を切り替えた場合は、言語サーバーを再起動します...
     context.subscriptions.push(
         python.environments.onDidChangeActiveEnvironmentPath(async () => {
             logger.info('python env modified, restarting server...')
@@ -75,7 +76,7 @@ export async function activate(context: vscode.ExtensionContext) {
         })
     )
 
-    // ... or if they change a relevant config option
+    // ...または関連する設定オプションを変更した場合
     context.subscriptions.push(
         vscode.workspace.onDidChangeConfiguration(async (event) => {
             if (event.affectsConfiguration("pygls.server") || event.affectsConfiguration("pygls.client")) {
@@ -85,7 +86,7 @@ export async function activate(context: vscode.ExtensionContext) {
         })
     )
 
-    // Start the language server once the user opens the first text document...
+    // ユーザーが最初のテキスト ドキュメントを開いたら、言語サーバーを起動します...
     context.subscriptions.push(
         vscode.workspace.onDidOpenTextDocument(
             async () => {
@@ -96,7 +97,7 @@ export async function activate(context: vscode.ExtensionContext) {
         )
     )
 
-    // ...or notebook.
+    // ...またはノートブック。
     context.subscriptions.push(
         vscode.workspace.onDidOpenNotebookDocument(
             async () => {
@@ -107,7 +108,7 @@ export async function activate(context: vscode.ExtensionContext) {
         )
     )
 
-    // Restart the server if the user modifies it.
+    // ユーザーが変更した場合はサーバーを再起動します。
     context.subscriptions.push(
         vscode.workspace.onDidSaveTextDocument(async (document: vscode.TextDocument) => {
             const expectedUri = vscode.Uri.file(path.join(getCwd(), getServerPath()))
@@ -125,16 +126,17 @@ export function deactivate(): Thenable<void> {
 }
 
 /**
- * Start (or restart) the language server.
+ * 言語サーバーを起動 (または再起動) します。
+ * パラメータだったものを内部で設定から取得するように変えた？
  *
- * @param command The executable to run
- * @param args Arguments to pass to the executable
- * @param cwd The working directory in which to run the executable
+ * @param command 実行する実行ファイル
+ * @param args  実行ファイルに渡す引数
+ * @param cwd 実行ファイルを実行する作業ディレクトリ
  * @returns
  */
 async function startLangServer() {
 
-    // Don't interfere if we are already in the process of launching the server.
+    // すでにサーバーの起動処理が行われている場合には干渉しないでください。
     if (clientStarting) {
         return
     }
@@ -199,7 +201,7 @@ function startDebugging(): Promise<void> {
         logger.error("Unable to start debugging, there is no workspace.")
         return Promise.reject("Unable to start debugging, there is no workspace.")
     }
-    // TODO: Is there a more reliable way to ensure the debug adapter is ready?
+    // TODO: デバッグ アダプターの準備ができていることを確認するためのより信頼性の高い方法はありますか?
     setTimeout(async () => {
         await vscode.debug.startDebugging(vscode.workspace.workspaceFolders[0], "pygls: Debug Server")
     }, 2000)
@@ -211,7 +213,7 @@ function getClientOptions(): LanguageClientOptions {
         documentSelector: config.get<any>('documentSelector'),
         outputChannel: logger,
         connectionOptions: {
-            maxRestartCount: 0 // don't restart on server failure.
+            maxRestartCount: 0 // サーバー障害時には再起動しないでください。
         },
     };
     logger.info(`client options: ${JSON.stringify(options, undefined, 2)}`)
@@ -239,7 +241,7 @@ function startLangServerTCP(addr: number): LanguageClient {
 }
 
 /**
- * Execute a command provided by the language server.
+ * 言語サーバーによって提供されたコマンドを実行します。
  */
 async function executeServerCommand() {
     if (!client || client.state !== State.Running) {
@@ -263,13 +265,13 @@ async function executeServerCommand() {
     }
     logger.info(`executing command: '${commandName}'`)
 
-    const result = await vscode.commands.executeCommand(commandName /* if your command accepts arguments you can pass them here */)
+    const result = await vscode.commands.executeCommand(commandName /* コマンドが引数を受け入れる場合は、ここで渡すことができます */)
     logger.info(`${commandName} result: ${JSON.stringify(result, undefined, 2)}`)
 }
 
 /**
  *
- * @returns The working directory from which to launch the server
+ * @returns サーバーを起動する作業ディレクトリ
  */
 function getCwd(): string {
     const config = vscode.workspace.getConfiguration("pygls.server")
@@ -280,7 +282,7 @@ function getCwd(): string {
         throw new Error(message)
     }
 
-    // Check for ${workspaceFolder} etc.
+    // ${workspaceFolder} などを確認します。
     const match = cwd.match(/^\${(\w+)}/)
     if (match && (match[1] === 'workspaceFolder' || match[1] === 'workspaceRoot')) {
         if (!vscode.workspace.workspaceFolders) {
@@ -289,7 +291,7 @@ function getCwd(): string {
             throw new Error(message)
         }
 
-        // Assume a single workspace...
+        // 単一のワークスペースを想定します...
         const workspaceFolder = vscode.workspace.workspaceFolders[0].uri.fsPath
         cwd = cwd.replace(match[0], workspaceFolder)
     }
@@ -299,7 +301,7 @@ function getCwd(): string {
 
 /**
  *
- * @returns The python script that implements the server.
+ * @returns サーバーを実装する Python スクリプト。
  */
 function getServerPath(): string {
     const config = vscode.workspace.getConfiguration("pygls.server")
@@ -308,12 +310,11 @@ function getServerPath(): string {
 }
 
 /**
- * Return the python command to use when starting the server.
+ * サーバーの起動時に使用する Python コマンドを返します。
  *
- * If debugging is enabled, this will also included the arguments to required
- * to wrap the server in a debug adapter.
+ * デバッグが有効になっている場合は、サーバーをデバッグアダプタでラップするために必要な引数も含まれます。
  *
- * @returns The full python command needed in order to start the server.
+ * @returns サーバーを起動するために必要な完全な Python コマンド。
  */
 async function getPythonCommand(resource?: vscode.Uri): Promise<string[] | undefined> {
     const config = vscode.workspace.getConfiguration("pygls.server", resource)
@@ -342,12 +343,12 @@ async function getPythonCommand(resource?: vscode.Uri): Promise<string[] | undef
 }
 
 /**
- * Return the command to use to start the python interpreter
+ * Pythonインタープリタを起動するために使用するコマンドを返します
  *
- * If no command is configured, this uses the official python extension to
- * grab the user's currently configured environment.
+ * コマンドが設定されていない場合は、公式の Python 拡張機能を使用して、
+ * ユーザーの現在設定されている環境を取得します。
  *
- * @returns The command needed to invoke the python interpreter
+ * @returns Pythonインタープリタを起動するために必要なコマンド
  */
 async function getPythonInterpreterCmd(resource?: vscode.Uri): Promise<string[] | undefined> {
     const config = vscode.workspace.getConfiguration("pygls.server", resource)
@@ -364,7 +365,7 @@ async function getPythonInterpreterCmd(resource?: vscode.Uri): Promise<string[] 
     if (resource) {
         logger.info(`Looking for environment in which to execute: '${resource.toString()}'`)
     }
-    // Use whichever python interpreter the user has configured.
+    // ユーザーが設定した Python インタープリターを使用します。
     const activeEnvPath = python.environments.getActiveEnvironmentPath(resource)
     logger.info(`Found environment: ${activeEnvPath.id}: ${activeEnvPath.path}`)
 
@@ -377,7 +378,7 @@ async function getPythonInterpreterCmd(resource?: vscode.Uri): Promise<string[] 
     const v = activeEnv.version
     const pythonVersion = semver.parse(`${v.major}.${v.minor}.${v.micro}`)
 
-    // Check to see if the environment satisfies the min Python version.
+    // 環境が最小 Python バージョンを満たしているかどうかを確認します。
     if (semver.lt(pythonVersion, MIN_PYTHON)) {
         const message = [
             `Your currently configured environment provides Python v${pythonVersion} `,
